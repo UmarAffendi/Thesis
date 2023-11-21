@@ -33,21 +33,21 @@ datagen = ImageDataGenerator(
     fill_mode='nearest'
 )
 
-train_dir = 'train_dataset'
+train_dir = 'improved_dataset\\train'
 
 train_generator = datagen.flow_from_directory(
     train_dir,
     target_size=(64, 64),  
-    batch_size=32,
+    batch_size=100,
     class_mode='categorical' 
 )
 
-val_dir = 'val_dataset'
+val_dir = 'improved_dataset\\val'
 
 val_generator = datagen.flow_from_directory(
     val_dir,
     target_size=(64, 64), 
-    batch_size=32,
+    batch_size=100,
     class_mode='categorical'  
 )
 
@@ -104,7 +104,7 @@ plt.savefig(os.path.join(next_graph_path, 'b_model_loss.png'))
 plt.show()
 
 
-test_dir = 'test_dataset'
+test_dir = 'improved_dataset\\test'
 test_generator = datagen.flow_from_directory(
     test_dir,
     target_size=(64, 64),  

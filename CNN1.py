@@ -4,19 +4,6 @@ from tensorflow.keras import models, layers
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-import pandas as pd
-import tensorflow as tf
-from tensorflow.keras import layers, models, optimizers
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.utils import to_categorical
-from keras.layers import Dense, Activation, Dropout, BatchNormalization, Conv1D,Conv2D, MaxPooling1D,MaxPooling2D,GlobalAveragePooling1D,GlobalAveragePooling2D
-from keras.models import Model, load_model
-from keras.layers import Input, Flatten
-import os
-import numpy as np
-import matplotlib.pyplot as plt
-from tensorflow.keras import initializers
-
 
 def get_next_train_folder(base_path, train_prefix):
     items = os.listdir(base_path)
@@ -46,53 +33,47 @@ datagen = ImageDataGenerator(
     fill_mode='nearest'
 )
 
-train_dir = 'train_dataset'
+train_dir = 'improved_dataset\\train'
 
 train_generator = datagen.flow_from_directory(
     train_dir,
     target_size=(64, 64),  
-    batch_size=32,
-    class_mode='categorical'  
+    batch_size=100,
+    class_mode='categorical' 
 )
 
-val_dir = 'val_dataset'
+val_dir = 'improved_dataset\\val'
 
 val_generator = datagen.flow_from_directory(
     val_dir,
-    target_size=(64, 64),  
-    batch_size=32,
+    target_size=(64, 64), 
+    batch_size=100,
     class_mode='categorical'  
 )
 
-ac_fun = 'LeakyReLU'
-weight_initializer = initializers.GlorotNormal()
-
+# Build the CNN model
 def build_model(num_classes):
-    
-    inputs = Input(shape=(64,64,3))
-    x = inputs
-    x = Conv2D(16,(3,3),strides = (1,1),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Conv2D(16,(3,3),strides = (1,1),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Conv2D(16,(3,3),strides = (2,2),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Conv2D(16,(3,3),strides = (1,1),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Conv2D(16,(3,3),strides = (2,2),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Conv2D(16,(3,3),strides = (1,1),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Conv2D(16,(3,3),strides = (2,2),padding='valid',activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = Flatten()(x)
-    x = Dropout(0.3)(x)
-    #x = Dense(2048,activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = Dense(512,activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    x = Dense(128,activation = ac_fun,kernel_initializer=weight_initializer)(x)
-    
-    outputs = Dense(num_classes,activation=None,kernel_initializer=weight_initializer)(x)
-    model = Model(inputs = inputs, outputs = outputs)
+    model = tf.keras.Sequential([
+        tf.keras.layers.InputLayer(input_shape=(64, 64, 3)),
+
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(num_classes, activation='softmax')
+    ])
+
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
@@ -105,7 +86,7 @@ history = model.fit(
     validation_data=val_generator  
 )
 
-model.save(os.path.join(next_model_path, 'CNN2_model.h5'))
+model.save(os.path.join(next_model_path, 'CNN1_model.h5'))
 
 import matplotlib.pyplot as plt
 
@@ -131,7 +112,7 @@ plt.savefig(os.path.join(next_graph_path, 'CNN1_loss.png'))
 plt.show()
 
 
-test_dir = 'test_dataset'
+test_dir = 'improved_dataset\\test'
 test_generator = datagen.flow_from_directory(
     test_dir,
     target_size=(64, 64),  
